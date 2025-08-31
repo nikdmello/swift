@@ -5,7 +5,7 @@ import { ethers, formatEther } from 'ethers'
 import { useWalletClient } from 'wagmi'
 import { abiStreamManager } from '@/abis'
 import { STREAM_MANAGER_ADDRESS } from '@/lib/addresses'
-import { StreamClient } from '@/lib/stream/StreamClient'
+
 
 const EXPLORER_URL = 'https://sepolia.basescan.org/tx/'
 
