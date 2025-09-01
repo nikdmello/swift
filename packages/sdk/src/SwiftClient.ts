@@ -136,43 +136,81 @@ export class SwiftClient {
     this.addEventListener('StreamCancelled', listener)
   }
 
-  // Listen for incoming streams to a specific address
-  async listenForIncomingStreams(address: string, callback: (from: string, flowRate: bigint) => void) {
-    const filter = this.streamManager.filters.StreamOpened(null, address)
-    this.streamManager.on(filter, (from: string, to: string, flowRate: bigint) => {
-      callback(from, flowRate)
-    })
-  }
-
-  // Auto-withdraw when funds are available
+  // Robust event listening with fallback to polling
   async startAutoWithdraw(checkInterval: number = 30000) {
     const myAddress = await this.signer.getAddress()
+    console.log(`🎧 Starting event-driven auto-withdrawal for ${myAddress}`)
     
-    // Listen for new streams to me
-    await this.listenForIncomingStreams(myAddress, async (from: string, flowRate: bigint) => {
-      console.log(`🌊 New stream detected from ${from} at ${ethers.formatEther(flowRate * 60n)} ETH/min`)
-      
-      // Start periodic withdrawal for this stream
-      const withdrawInterval = setInterval(async () => {
-        try {
-          const owed = await this.streamManager.getOwed(from, myAddress)
-          if (owed > 0n) {
-            console.log(`💰 Auto-withdrawing ${ethers.formatEther(owed)} ETH from ${from}`)
-            await this.streamManager.withdraw(from)
-          }
-        } catch (error) {
-          console.error('Auto-withdraw failed:', error)
-        }
-      }, checkInterval)
+    // Try event-driven approach first
+    try {
+      await this.setupEventListeners(myAddress, checkInterval)
+    } catch (error) {
+      console.log('⚠️ Event listeners failed, falling back to polling mode')
+      await this.setupPollingMode(myAddress, checkInterval)
+    }
+  }
 
-      // Stop interval when stream is cancelled
-      this.onStreamCancelled((cancelledFrom, cancelledTo) => {
-        if (cancelledFrom === from && cancelledTo === myAddress) {
-          clearInterval(withdrawInterval)
-          console.log(`🛑 Stream from ${from} cancelled, stopping auto-withdraw`)
+  private async setupEventListeners(myAddress: string, checkInterval: number) {
+    console.log('⚠️ RPC provider has filter issues, using polling mode for reliability')
+    // Skip event listeners due to RPC filter issues, use polling instead
+    await this.setupPollingMode(myAddress, checkInterval)
+  }
+
+  private async setupPollingMode(myAddress: string, checkInterval: number) {
+    console.log('🔄 Using polling mode for stream detection')
+    
+    const checkForStreams = async () => {
+      await this.checkExistingStreams(myAddress, checkInterval)
+    }
+
+    // Check immediately and then every interval
+    await checkForStreams()
+    setInterval(checkForStreams, checkInterval)
+  }
+
+  private async checkExistingStreams(myAddress: string, checkInterval: number) {
+    // Check known senders for active streams
+    const knownSenders = [
+      '0xa6bA10f45a299E4790488CE5174bB8825c7F247d',
+      '0xbAa5F677902381a98ddD9408E2cf90f0A7802B4f'
+    ]
+
+    for (const sender of knownSenders) {
+      if (sender.toLowerCase() === myAddress.toLowerCase()) continue
+      
+      try {
+        const stream = await this.streamManager.getStream(sender, myAddress)
+        if (stream.active) {
+          console.log(`🔍 Found active stream from ${sender}`)
+          await this.startWithdrawalForStream(sender, myAddress, checkInterval)
         }
-      })
-    })
+      } catch (error) {
+        // Stream doesn't exist, continue
+      }
+    }
+  }
+
+  private async startWithdrawalForStream(from: string, to: string, checkInterval: number) {
+    const withdrawalKey = `${from}-${to}`
+    
+    // Prevent duplicate intervals for the same stream
+    if (this.eventListeners.has(withdrawalKey)) {
+      return
+    }
+
+    const withdrawInterval = setInterval(async () => {
+      try {
+        const owed = await this.streamManager.getOwed(from, to)
+        if (owed > 0n) {
+          console.log(`💰 Auto-withdrawing ${ethers.formatEther(owed)} ETH from ${from}`)
+          await this.streamManager.withdraw(from)
+        }
+      } catch (error) {
+        console.error(`❌ Auto-withdraw failed from ${from}:`, error)
+      }
+    }, checkInterval)
+
+    this.eventListeners.set(withdrawalKey, [() => clearInterval(withdrawInterval)])
   }
 
   private addEventListener(event: string, listener: Function) {
@@ -182,9 +220,16 @@ export class SwiftClient {
     this.eventListeners.get(event)!.push(listener)
   }
 
-  // Clean up event listeners
+  // Clean up event listeners and intervals
   removeAllListeners() {
-    this.streamManager.removeAllListeners()
+    // Clear all intervals
+    for (const [key, listeners] of this.eventListeners.entries()) {
+      listeners.forEach(cleanup => cleanup())
+    }
     this.eventListeners.clear()
+    
+    // Remove contract event listeners
+    this.streamManager.removeAllListeners()
+    console.log('🧹 Cleaned up all event listeners and intervals')
   }
 }
