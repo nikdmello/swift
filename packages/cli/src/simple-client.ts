@@ -10,8 +10,10 @@ export class SimpleSwiftClient {
     this.signer = signer
     this.provider = provider
     
-    const registryAbi = require('../../../frontend/abis/AgentRegistry.json').abi
-    const messengerAbi = require('../../../frontend/abis/AgentMessenger.json').abi
+    const registryArtifact = require('../../../frontend/abis/AgentRegistry.json')
+    const messengerArtifact = require('../../../frontend/abis/AgentMessenger.json')
+    const registryAbi = registryArtifact.abi
+    const messengerAbi = messengerArtifact.abi
     
     this.swiftClient = new SwiftClient(
       signer,
