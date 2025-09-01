@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import type { InterfaceAbi } from 'ethers'
-import StreamManagerArtifact from '../../../frontend/abis/StreamManager.json'
 
+const StreamManagerArtifact = require('../../../frontend/abis/StreamManager.json')
 const abiStreamManager = StreamManagerArtifact.abi as InterfaceAbi
 
 interface StreamStruct {
@@ -25,6 +25,7 @@ export class SwiftClient {
   agentRegistry: ethers.Contract
   agentMessenger: ethers.Contract
   streamManager: ethers.Contract & StreamManagerMethods
+  private eventListeners: Map<string, Function[]> = new Map()
 
   constructor(
     signer: ethers.Signer,
@@ -108,5 +109,82 @@ export class SwiftClient {
       throw new Error('Cancel stream transaction failed')
     }
     return tx.hash!
+  }
+
+  // Event listening methods
+  onStreamOpened(callback: (from: string, to: string, flowRate: bigint) => void) {
+    const listener = (from: string, to: string, flowRate: bigint) => {
+      callback(from, to, flowRate)
+    }
+    this.streamManager.on('StreamOpened', listener)
+    this.addEventListener('StreamOpened', listener)
+  }
+
+  onWithdrawn(callback: (to: string, from: string, amount: bigint) => void) {
+    const listener = (to: string, from: string, amount: bigint) => {
+      callback(to, from, amount)
+    }
+    this.streamManager.on('Withdrawn', listener)
+    this.addEventListener('Withdrawn', listener)
+  }
+
+  onStreamCancelled(callback: (from: string, to: string, refunded: bigint) => void) {
+    const listener = (from: string, to: string, refunded: bigint) => {
+      callback(from, to, refunded)
+    }
+    this.streamManager.on('StreamCancelled', listener)
+    this.addEventListener('StreamCancelled', listener)
+  }
+
+  // Listen for incoming streams to a specific address
+  async listenForIncomingStreams(address: string, callback: (from: string, flowRate: bigint) => void) {
+    const filter = this.streamManager.filters.StreamOpened(null, address)
+    this.streamManager.on(filter, (from: string, to: string, flowRate: bigint) => {
+      callback(from, flowRate)
+    })
+  }
+
+  // Auto-withdraw when funds are available
+  async startAutoWithdraw(checkInterval: number = 30000) {
+    const myAddress = await this.signer.getAddress()
+    
+    // Listen for new streams to me
+    await this.listenForIncomingStreams(myAddress, async (from: string, flowRate: bigint) => {
+      console.log(`🌊 New stream detected from ${from} at ${ethers.formatEther(flowRate * 60n)} ETH/min`)
+      
+      // Start periodic withdrawal for this stream
+      const withdrawInterval = setInterval(async () => {
+        try {
+          const owed = await this.streamManager.getOwed(from, myAddress)
+          if (owed > 0n) {
+            console.log(`💰 Auto-withdrawing ${ethers.formatEther(owed)} ETH from ${from}`)
+            await this.streamManager.withdraw(from)
+          }
+        } catch (error) {
+          console.error('Auto-withdraw failed:', error)
+        }
+      }, checkInterval)
+
+      // Stop interval when stream is cancelled
+      this.onStreamCancelled((cancelledFrom, cancelledTo) => {
+        if (cancelledFrom === from && cancelledTo === myAddress) {
+          clearInterval(withdrawInterval)
+          console.log(`🛑 Stream from ${from} cancelled, stopping auto-withdraw`)
+        }
+      })
+    })
+  }
+
+  private addEventListener(event: string, listener: Function) {
+    if (!this.eventListeners.has(event)) {
+      this.eventListeners.set(event, [])
+    }
+    this.eventListeners.get(event)!.push(listener)
+  }
+
+  // Clean up event listeners
+  removeAllListeners() {
+    this.streamManager.removeAllListeners()
+    this.eventListeners.clear()
   }
 }
