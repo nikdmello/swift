@@ -46,26 +46,7 @@ export class SwiftAgent {
       // Start event-driven auto-withdrawal using enhanced SwiftClient
       await this.client.getSwiftClient().startAutoWithdraw(intervalSeconds * 1000)
       
-      // Set up additional event listeners for logging
-      const swiftClient = this.client.getSwiftClient()
-      
-      swiftClient.onStreamOpened((from: string, to: string, flowRate: bigint) => {
-        if (to.toLowerCase() === address.toLowerCase()) {
-          console.log(`🎆 Stream opened from ${from}: ${ethers.formatEther(flowRate * 60n)} ETH/min`)
-        }
-      })
-
-      swiftClient.onWithdrawn((to: string, from: string, amount: bigint) => {
-        if (to.toLowerCase() === address.toLowerCase()) {
-          console.log(`✅ Withdrew ${ethers.formatEther(amount)} ETH from ${from}`)
-        }
-      })
-
-      swiftClient.onStreamCancelled((from: string, to: string, refunded: bigint) => {
-        if (to.toLowerCase() === address.toLowerCase()) {
-          console.log(`🛑 Stream from ${from} cancelled`)
-        }
-      })
+      // Event listeners disabled - using polling mode for reliability
 
       console.log('✨ Event listeners active - agent is now fully autonomous!')
       

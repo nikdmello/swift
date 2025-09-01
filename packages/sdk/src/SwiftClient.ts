@@ -111,48 +111,12 @@ export class SwiftClient {
     return tx.hash!
   }
 
-  // Event listening methods
-  onStreamOpened(callback: (from: string, to: string, flowRate: bigint) => void) {
-    const listener = (from: string, to: string, flowRate: bigint) => {
-      callback(from, to, flowRate)
-    }
-    this.streamManager.on('StreamOpened', listener)
-    this.addEventListener('StreamOpened', listener)
-  }
+  // Event methods disabled due to RPC filter issues - using polling instead
 
-  onWithdrawn(callback: (to: string, from: string, amount: bigint) => void) {
-    const listener = (to: string, from: string, amount: bigint) => {
-      callback(to, from, amount)
-    }
-    this.streamManager.on('Withdrawn', listener)
-    this.addEventListener('Withdrawn', listener)
-  }
-
-  onStreamCancelled(callback: (from: string, to: string, refunded: bigint) => void) {
-    const listener = (from: string, to: string, refunded: bigint) => {
-      callback(from, to, refunded)
-    }
-    this.streamManager.on('StreamCancelled', listener)
-    this.addEventListener('StreamCancelled', listener)
-  }
-
-  // Robust event listening with fallback to polling
+  // Pure polling approach to avoid RPC filter issues
   async startAutoWithdraw(checkInterval: number = 30000) {
     const myAddress = await this.signer.getAddress()
-    console.log(`🎧 Starting event-driven auto-withdrawal for ${myAddress}`)
-    
-    // Try event-driven approach first
-    try {
-      await this.setupEventListeners(myAddress, checkInterval)
-    } catch (error) {
-      console.log('⚠️ Event listeners failed, falling back to polling mode')
-      await this.setupPollingMode(myAddress, checkInterval)
-    }
-  }
-
-  private async setupEventListeners(myAddress: string, checkInterval: number) {
-    console.log('⚠️ RPC provider has filter issues, using polling mode for reliability')
-    // Skip event listeners due to RPC filter issues, use polling instead
+    console.log(`🔄 Starting polling-based auto-withdrawal for ${myAddress}`)
     await this.setupPollingMode(myAddress, checkInterval)
   }
 
