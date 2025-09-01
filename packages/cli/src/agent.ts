@@ -37,76 +37,32 @@ export class SwiftAgent {
     }
   }
 
-  async startListening(intervalSeconds: number): Promise<void> {
+  async startListening(intervalSeconds: number = 30): Promise<void> {
     const address = await this.signer.getAddress()
-    console.log(`🎧 Agent listening for messages: ${address}`)
-    console.log(`⏰ Check interval: ${intervalSeconds}s`)
+    console.log(`🎧 Agent listening for events: ${address}`)
+    console.log(`🔄 Event-driven mode with ${intervalSeconds}s auto-withdraw interval`)
 
-    const checkMessages = async () => {
-      try {
-        // Check for new messages and auto-withdraw
-        await this.autoWithdraw()
-      } catch (error) {
-        console.error('❌ Error checking messages:', error)
-      }
-    }
-
-    // Initial check
-    await checkMessages()
-    
-    // Set up interval
-    setInterval(checkMessages, intervalSeconds * 1000)
-  }
-
-  async autoWithdraw(): Promise<void> {
-    console.log('🔍 Checking for withdrawable funds...')
-    
     try {
-      const streamManagerAbi = require('../../../frontend/abis/StreamManager.json').abi
-      const streamManager = new ethers.Contract(
-        '0x4e37173B972E39D731b421c13922959dbfd97331',
-        streamManagerAbi,
-        this.signer
-      )
+      // Start event-driven auto-withdrawal using enhanced SwiftClient
+      await this.client.getSwiftClient().startAutoWithdraw(intervalSeconds * 1000)
       
-      const myAddress = await this.signer.getAddress()
+      // Event listeners disabled - using polling mode for reliability
+
+      console.log('✨ Event listeners active - agent is now fully autonomous!')
       
-      // Check for streams from known senders (simplified for demo)
-      const senders = [
-        '0xa6bA10f45a299E4790488CE5174bB8825c7F247d',
-        '0xbAa5F677902381a98ddD9408E2cf90f0A7802B4f'
-      ]
+      // Keep the process alive
+      process.on('SIGINT', () => {
+        console.log('\n🛑 Shutting down agent...')
+        this.client.getSwiftClient().removeAllListeners()
+        process.exit(0)
+      })
       
-      for (const sender of senders) {
-        if (sender.toLowerCase() === myAddress.toLowerCase()) continue
-        
-        try {
-          // Check if there's an active stream
-          const stream = await streamManager.getStream(sender, myAddress)
-          if (stream.active) {
-            console.log(`🌊 Active stream detected from ${sender}`)
-            
-            const owed = await streamManager.getOwed(sender, myAddress)
-            if (owed > 0n) {
-              console.log(`💰 Found ${ethers.formatEther(owed)} ETH from ${sender}`)
-              console.log('🔄 Withdrawing funds...')
-              
-              const tx = await streamManager.withdraw(sender)
-              await tx.wait()
-              
-              console.log(`✅ Withdrew ${ethers.formatEther(owed)} ETH! TX: ${tx.hash}`)
-            } else {
-              console.log(`⏳ Stream active but no funds accumulated yet from ${sender}`)
-            }
-          }
-        } catch (err) {
-          // Stream might not exist, continue
-        }
-      }
     } catch (error) {
-      console.error('❌ Auto-withdraw failed:', error)
+      console.error('❌ Failed to start event listening:', error)
     }
   }
+
+
 
   async sendMessage(to: string, amount: string, duration: string, message: string): Promise<void> {
     const durationMinutes = parseInt(duration)

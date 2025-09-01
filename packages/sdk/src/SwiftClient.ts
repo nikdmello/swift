@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import type { InterfaceAbi } from 'ethers'
-import StreamManagerArtifact from '../../../frontend/abis/StreamManager.json'
 
+const StreamManagerArtifact = require('../../../frontend/abis/StreamManager.json')
 const abiStreamManager = StreamManagerArtifact.abi as InterfaceAbi
 
 interface StreamStruct {
@@ -25,6 +25,7 @@ export class SwiftClient {
   agentRegistry: ethers.Contract
   agentMessenger: ethers.Contract
   streamManager: ethers.Contract & StreamManagerMethods
+  private eventListeners: Map<string, Function[]> = new Map()
 
   constructor(
     signer: ethers.Signer,
@@ -108,5 +109,91 @@ export class SwiftClient {
       throw new Error('Cancel stream transaction failed')
     }
     return tx.hash!
+  }
+
+  // Event methods disabled due to RPC filter issues - using polling instead
+
+  // Pure polling approach to avoid RPC filter issues
+  async startAutoWithdraw(checkInterval: number = 30000) {
+    const myAddress = await this.signer.getAddress()
+    console.log(`🔄 Starting polling-based auto-withdrawal for ${myAddress}`)
+    await this.setupPollingMode(myAddress, checkInterval)
+  }
+
+  private async setupPollingMode(myAddress: string, checkInterval: number) {
+    console.log('🔄 Using polling mode for stream detection')
+    
+    const checkForStreams = async () => {
+      await this.checkExistingStreams(myAddress, checkInterval)
+    }
+
+    // Check immediately and then every interval
+    await checkForStreams()
+    setInterval(checkForStreams, checkInterval)
+  }
+
+  private async checkExistingStreams(myAddress: string, checkInterval: number) {
+    // Check known senders for active streams
+    const knownSenders = [
+      '0xa6bA10f45a299E4790488CE5174bB8825c7F247d',
+      '0xbAa5F677902381a98ddD9408E2cf90f0A7802B4f'
+    ]
+
+    for (const sender of knownSenders) {
+      if (sender.toLowerCase() === myAddress.toLowerCase()) continue
+      
+      try {
+        const stream = await this.streamManager.getStream(sender, myAddress)
+        if (stream.active) {
+          console.log(`🔍 Found active stream from ${sender}`)
+          await this.startWithdrawalForStream(sender, myAddress, checkInterval)
+        }
+      } catch (error) {
+        // Stream doesn't exist, continue
+      }
+    }
+  }
+
+  private async startWithdrawalForStream(from: string, to: string, checkInterval: number) {
+    const withdrawalKey = `${from}-${to}`
+    
+    // Prevent duplicate intervals for the same stream
+    if (this.eventListeners.has(withdrawalKey)) {
+      return
+    }
+
+    const withdrawInterval = setInterval(async () => {
+      try {
+        const owed = await this.streamManager.getOwed(from, to)
+        if (owed > 0n) {
+          console.log(`💰 Auto-withdrawing ${ethers.formatEther(owed)} ETH from ${from}`)
+          await this.streamManager.withdraw(from)
+        }
+      } catch (error) {
+        console.error(`❌ Auto-withdraw failed from ${from}:`, error)
+      }
+    }, checkInterval)
+
+    this.eventListeners.set(withdrawalKey, [() => clearInterval(withdrawInterval)])
+  }
+
+  private addEventListener(event: string, listener: Function) {
+    if (!this.eventListeners.has(event)) {
+      this.eventListeners.set(event, [])
+    }
+    this.eventListeners.get(event)!.push(listener)
+  }
+
+  // Clean up event listeners and intervals
+  removeAllListeners() {
+    // Clear all intervals
+    for (const [key, listeners] of this.eventListeners.entries()) {
+      listeners.forEach(cleanup => cleanup())
+    }
+    this.eventListeners.clear()
+    
+    // Remove contract event listeners
+    this.streamManager.removeAllListeners()
+    console.log('🧹 Cleaned up all event listeners and intervals')
   }
 }

@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useAccount, useWalletClient } from 'wagmi'
 import { ethers } from 'ethers'
-import { SwiftClient } from '@swift-protocol/sdk'
-import { abiAgentRegistry, abiAgentMessenger, abiStreamManager } from '@/abis'
-import { AGENT_REGISTRY_ADDRESS, AGENT_MESSENGER_ADDRESS, STREAM_MANAGER_ADDRESS } from '@/lib/addresses'
+import { abiAgentMessenger } from '@/abis'
+import { AGENT_MESSENGER_ADDRESS } from '@/lib/addresses'
 import { InboxItem } from '@/components/InboxItem'
 
 type Message = {
@@ -23,7 +22,6 @@ type Message = {
 export function Inbox() {
   const { address, isConnected } = useAccount()
   const { data: walletClient } = useWalletClient()
-  const [swift, setSwift] = useState<SwiftClient>()
   const [messages, setMessages] = useState<Message[]>([])
   const [mounted, setMounted] = useState(false)
 
@@ -35,29 +33,18 @@ export function Inbox() {
 
       try {
         const provider = new ethers.BrowserProvider(walletClient.transport)
-        const signer = await provider.getSigner()
-        const client = new SwiftClient(
-          signer,
-          provider,
-          AGENT_REGISTRY_ADDRESS,
-          AGENT_MESSENGER_ADDRESS,
-          STREAM_MANAGER_ADDRESS,
-          abiAgentRegistry,
-          abiAgentMessenger,
-        )
+        const contract = new ethers.Contract(AGENT_MESSENGER_ADDRESS, abiAgentMessenger, provider)
 
-        setSwift(client)
-
-        const sentFilter = client.agentMessenger.filters.MessageSent(address, undefined)
-        const receivedFilter = client.agentMessenger.filters.MessageSent(undefined, address)
+        const sentFilter = contract.filters.MessageSent(address, undefined)
+        const receivedFilter = contract.filters.MessageSent(undefined, address)
 
         // Query from recent blocks to avoid RPC limits
         const currentBlock = await provider.getBlockNumber()
-        const fromBlock = Math.max(0, currentBlock - 10000) // Last ~10k blocks
+        const fromBlock = Math.max(0, currentBlock - 1000) // Last ~1k blocks to avoid RPC issues
         
         const [sentLogs, receivedLogs] = await Promise.all([
-          client.agentMessenger.queryFilter(sentFilter, fromBlock, 'latest'),
-          client.agentMessenger.queryFilter(receivedFilter, fromBlock, 'latest')
+          contract.queryFilter(sentFilter, fromBlock, 'latest'),
+          contract.queryFilter(receivedFilter, fromBlock, 'latest')
         ])
 
         const merged = [...sentLogs, ...receivedLogs]
@@ -98,6 +85,8 @@ export function Inbox() {
         setMessages(parsed)
       } catch (err) {
         console.error('❌ Inbox init failed:', err)
+        // Just show empty state instead of error message
+        setMessages([])
       }
     }
 
