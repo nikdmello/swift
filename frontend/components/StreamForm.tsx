@@ -80,65 +80,65 @@ export default function StreamForm() {
       
       await tx.wait()
 
-      setStatus('✅ Stream + message sent!')
+      setStatus('Stream + message sent!')
     } catch (err: any) {
       console.error(err)
-      setStatus(`❌ Stream or message failed: ${err.message || err}`)
+      setStatus(`Stream or message failed: ${err.message || err}`)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="max-w-lg mx-auto bg-white rounded-xl shadow-lg p-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Send Payment Stream</h2>
+    <div className="max-w-lg mx-auto bg-gray-800 border border-gray-700 rounded-xl shadow-lg p-8">
+      <h2 className="text-2xl font-bold text-white mb-6 text-center">Stream a Payment</h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Recipient Address</label>
+          <label className="block text-sm font-medium text-gray-300 mb-2">Recipient Address</label>
           <input
             type="text"
             value={recipient}
             onChange={(e) => setRecipient(e.target.value)}
             required
-            className="w-full border border-gray-300 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-600 bg-gray-700 px-4 py-3 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="0x..."
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Total ETH Amount</label>
+          <label className="block text-sm font-medium text-gray-300 mb-2">Total ETH Amount</label>
           <input
             type="text"
             value={amountEth}
             onChange={(e) => setAmountEth(e.target.value)}
-            className="w-full border border-gray-300 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-600 bg-gray-700 px-4 py-3 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="0.001"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
+          <label className="block text-sm font-medium text-gray-300 mb-2">Duration (minutes)</label>
           <input
             type="number"
             min={1}
             value={durationMinutes}
             onChange={(e) => setDurationMinutes(parseInt(e.target.value))}
-            className="w-full border border-gray-300 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-600 bg-gray-700 px-4 py-3 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-          <div className="text-sm text-gray-500 mt-2">
+          <div className="text-sm text-gray-400 mt-2">
             Streaming rate: {amountEth && durationMinutes ? (parseFloat(amountEth) / durationMinutes).toFixed(6) : '0'} ETH/min
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+          <label className="block text-sm font-medium text-gray-300 mb-2">Message</label>
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Payment for services"
-            className="w-full border border-gray-300 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-600 bg-gray-700 px-4 py-3 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
@@ -151,7 +151,7 @@ export default function StreamForm() {
         </button>
 
         {status && (
-          <div className="mt-4 p-3 rounded-lg text-sm text-center bg-gray-50 text-gray-800">
+          <div className="mt-4 p-3 rounded-lg text-sm text-center bg-gray-700 text-gray-200">
             {status}
           </div>
         )}

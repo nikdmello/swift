@@ -55,10 +55,12 @@ export function Inbox() {
         const currentBlock = await provider.getBlockNumber()
         const fromBlock = Math.max(0, currentBlock - 10000) // Last ~10k blocks
         
+        console.log(`Querying messages from block ${fromBlock} to latest`)
         const [sentLogs, receivedLogs] = await Promise.all([
           client.agentMessenger.queryFilter(sentFilter, fromBlock, 'latest'),
           client.agentMessenger.queryFilter(receivedFilter, fromBlock, 'latest')
         ])
+        console.log(`Found ${sentLogs.length} sent, ${receivedLogs.length} received logs`)
 
         const merged = [...sentLogs, ...receivedLogs]
 
@@ -74,12 +76,13 @@ export function Inbox() {
           (a, b) => Number(b.blockNumber) - Number(a.blockNumber)
         )
 
+        console.log(`Processing ${allLogs.length} unique logs`)
         const parsed: Message[] = allLogs.map((log: any) => {
           let payload = {}
           try {
             payload = JSON.parse(log.args.payload)
           } catch (e) {
-            console.warn('⚠️ Failed to parse payload:', log.args.payload)
+            console.warn('Failed to parse payload:', log.args.payload)
           }
 
           return {
@@ -95,17 +98,29 @@ export function Inbox() {
           }
         })
 
-        setMessages(parsed)
+        // Only update messages if we got valid results
+        if (parsed.length > 0 || messages.length === 0) {
+          setMessages(parsed)
+        } else {
+          console.warn('Query returned empty results, keeping existing messages')
+        }
       } catch (err) {
-        console.error('❌ Inbox init failed:', err)
+        console.error('Inbox init failed:', err)
+        // Don't clear existing messages on error
       }
     }
 
     init()
 
-    const interval = setInterval(() => {
-      setMessages((prev) => [...prev])
-    }, 1000)
+    // Refresh messages periodically to catch new events
+    const interval = setInterval(async () => {
+      try {
+        await init() // Re-fetch messages from blockchain
+      } catch (err) {
+        console.warn('Failed to refresh messages:', err)
+        // Don't clear messages on refresh error
+      }
+    }, 10000) // Every 10 seconds
 
     return () => clearInterval(interval)
   }, [isConnected, walletClient, address])
@@ -124,8 +139,8 @@ export function Inbox() {
 
   return (
     <ul className="space-y-6 max-w-2xl mx-auto">
-      {messages.map((msg, idx) => (
-        <InboxItem key={idx} msg={msg} receiver={address!} />
+      {messages.map((msg) => (
+        <InboxItem key={`${msg.txHash}-${msg.from}-${msg.to}`} msg={msg} receiver={address!} />
       ))}
     </ul>
   )
