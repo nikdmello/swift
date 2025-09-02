@@ -43,7 +43,7 @@ export class SimpleSwiftClient {
     const amountPerMinute = totalAmount / BigInt(durationMinutes)
     const durationSeconds = durationMinutes * 60
 
-    console.log('ℹ️  Creating escrow + streaming payment:')
+    console.log('Creating escrow + streaming payment:')
     console.log({ 
       'escrowDeposit': `${ethers.formatEther(totalAmount)} ETH (immediate)`,
       'streamingRate': `${ethers.formatEther(amountPerMinute)} ETH/min`,
@@ -52,6 +52,6 @@ export class SimpleSwiftClient {
     })
 
     await this.swiftClient.sendSwiftMessage(recipient, totalAmount, durationSeconds)
-    console.log('✅ Message sent with event-driven streaming!')
+    console.log('Message sent with streaming payment!')
   }
 }

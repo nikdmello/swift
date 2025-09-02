@@ -70,12 +70,12 @@ export class SwiftClient {
     try {
       const existingStream = await this.streamManager.getStream(await this.signer.getAddress(), recipient)
       if (existingStream.active) {
-        console.log('🔄 Cancelling existing stream...')
+        console.log('Cancelling existing stream...')
         await this.cancelStream(recipient)
-        console.log('✅ Existing stream cancelled')
+        console.log('Existing stream cancelled')
       }
     } catch (err) {
-      console.log('ℹ️ No existing stream to cancel')
+      console.log('No existing stream to cancel')
     }
 
     const flowRatePerSecond = totalEth / BigInt(durationSeconds)
@@ -84,7 +84,7 @@ export class SwiftClient {
 
     const expectedTotal = amountPerMinute * BigInt(durationMinutes)
 
-    console.log("ℹ️  Sending message with stream:")
+    console.log("Sending message with stream:")
     console.log({ amountPerMinute, durationMinutes, expectedTotal })
 
     const tx = await this.agentMessenger.sendMessageWithStream(
@@ -98,7 +98,7 @@ export class SwiftClient {
       }
     )
 
-    console.log("✅ tx hash:", tx.hash)
+    console.log("tx hash:", tx.hash)
     await this.provider.waitForTransaction(tx.hash)
   }
 
@@ -139,25 +139,14 @@ export class SwiftClient {
   // Robust event listening with fallback to polling
   async startAutoWithdraw(checkInterval: number = 30000) {
     const myAddress = await this.signer.getAddress()
-    console.log(`🎧 Starting event-driven auto-withdrawal for ${myAddress}`)
+    console.log(`Starting auto-withdrawal for ${myAddress}`)
     
-    // Try event-driven approach first
-    try {
-      await this.setupEventListeners(myAddress, checkInterval)
-    } catch (error) {
-      console.log('⚠️ Event listeners failed, falling back to polling mode')
-      await this.setupPollingMode(myAddress, checkInterval)
-    }
-  }
-
-  private async setupEventListeners(myAddress: string, checkInterval: number) {
-    console.log('⚠️ RPC provider has filter issues, using polling mode for reliability')
-    // Skip event listeners due to RPC filter issues, use polling instead
+    // Use polling mode due to RPC limitations
     await this.setupPollingMode(myAddress, checkInterval)
   }
 
   private async setupPollingMode(myAddress: string, checkInterval: number) {
-    console.log('🔄 Using polling mode for stream detection')
+    console.log('Using polling mode for stream detection')
     
     const checkForStreams = async () => {
       await this.checkExistingStreams(myAddress, checkInterval)
@@ -181,7 +170,7 @@ export class SwiftClient {
       try {
         const stream = await this.streamManager.getStream(sender, myAddress)
         if (stream.active) {
-          console.log(`🔍 Found active stream from ${sender}`)
+          console.log(`Found active stream from ${sender}`)
           await this.startWithdrawalForStream(sender, myAddress, checkInterval)
         }
       } catch (error) {
@@ -202,11 +191,11 @@ export class SwiftClient {
       try {
         const owed = await this.streamManager.getOwed(from, to)
         if (owed > 0n) {
-          console.log(`💰 Auto-withdrawing ${ethers.formatEther(owed)} ETH from ${from}`)
+          console.log(`Auto-withdrawing ${ethers.formatEther(owed)} ETH from ${from}`)
           await this.streamManager.withdraw(from)
         }
       } catch (error) {
-        console.error(`❌ Auto-withdraw failed from ${from}:`, error)
+        console.error(`Auto-withdraw failed from ${from}:`, error)
       }
     }, checkInterval)
 
@@ -230,6 +219,6 @@ export class SwiftClient {
     
     // Remove contract event listeners
     this.streamManager.removeAllListeners()
-    console.log('🧹 Cleaned up all event listeners and intervals')
+    console.log('Cleaned up all event listeners and intervals')
   }
 }
