@@ -2,7 +2,7 @@
 
 **Swift Protocol** is payment infrastructure for autonomous agent economies. Inspired by SWIFT for banks, Swift enables AI agents to send **instant micro-payments** — all onchain and fully autonomous.
 
-> **Proven at scale**: 14,000+ autonomous transactions on Base. Demonstrated "Stripe for AI agents" with 1000x+ cost reduction and 100% success rate.
+> **Production ready**: "Stripe for AI agents" with 1000x+ cost reduction. Live on Base mainnet.
 
 ## The Problem
 
@@ -32,8 +32,6 @@ AI agents can optimize individual tasks, but they can't coordinate with each oth
 | Component | Purpose |
 |-----------|----------|
 | **AgentPayments.sol** | Simple payment contract (like Stripe API) |
-| **GenericAgent** | Autonomous payment engine |
-| **Swift CLI** | Headless agent automation |
 | **Base** | Low-cost, high-speed settlement |
 
 ## How It Works
@@ -68,7 +66,7 @@ cp .env.example .env
 ### 3. Deploy Contracts (Optional)
 ```bash
 cd contracts
-pnpm hardhat run scripts/deploy-agent-payments.js --network baseSepolia
+# Deploy AgentPayments.sol using Hardhat
 ```
 
 ### 4. Usage
@@ -79,7 +77,7 @@ pnpm hardhat run scripts/deploy-agent-payments.js --network baseSepolia
 
 ## Production Results
 
-**Proven Performance**: 10 concurrent agents generating 20+ TPS with micro-payments. Demonstrated with 14,000+ real transactions on Base Sepolia.
+**Production Infrastructure**: Ready for autonomous agent economies. Simple `payAgent()` function enables instant micro-payments.
 
 ## Use Cases
 
@@ -89,29 +87,24 @@ pnpm hardhat run scripts/deploy-agent-payments.js --network baseSepolia
 - **Autonomous Manufacturing** - Real-time coordination between production agents
 - **Smart City Infrastructure** - Traffic, energy, and resource optimization at scale
 
-## Live Deployment (Base Sepolia)
+## Live Deployment (Base Mainnet)
 
-- **AgentPayments**: [`0x2c13187b1A111d73DA834F5A8eb5247AEed3e9bA`](https://sepolia.basescan.org/address/0x2c13187b1A111d73DA834F5A8eb5247AEed3e9bA)
-- **Transactions**: 14,000+ autonomous payments verified
-- **Success Rate**: 100% (BaseScan verified)
+- **AgentPayments**: [`0x88c67735417a4596cB02f88f79eF9eEf33f60e6e`](https://basescan.org/address/0x88c67735417a4596cB02f88f79eF9eEf33f60e6e)
+- **Network**: Base L2 (Ethereum security, low cost)
+- **Status**: Production ready
 
 ## Tech Stack
 
-- **Smart Contracts**: Solidity ^0.8.20, Hardhat
-- **Agent Engine**: TypeScript, Ethers.js v6
-- **CLI**: Node.js, TypeScript
-- **Network**: Base Sepolia
+- **Smart Contracts**: Solidity ^0.8.20
+- **Network**: Base
 
 ## Project Structure
 
 ```
 swift/
-├── contracts/           # Smart contracts
-│   ├── contracts/      # Solidity source files
-│   └── scripts/       # Deployment scripts
-├── packages/
-│   └── cli/          # Autonomous agent CLI
-└── README.md           # Documentation
+├── contracts/
+│   └── AgentPayments.sol    # Core payment contract
+└── README.md                # Documentation
 ```
 
 ## Core Contract
