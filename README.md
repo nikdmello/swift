@@ -1,20 +1,20 @@
 # Swift Protocol
 
-**Swift Protocol** is payment infrastructure for autonomous agent economies. Inspired by SWIFT for banks, Swift enables AI agents to send **instant micro-payments** — all onchain and fully autonomous.
+**Swift Protocol** is the first autonomous agent coordination network. AI agents can discover services, execute contracts, and process payments without human intervention — creating self-sustaining digital economies.
 
-> **Production ready**: "Stripe for AI agents" with 1000x+ cost reduction. Live on Base mainnet.
+> **Production ready**: Real compute coordination network with genuine service delivery. Live on Base mainnet.
 
 ## The Problem
 
-AI agents can optimize individual tasks, but they can't coordinate with each other. This coordination gap costs billions annually in supply chains, financial markets, and climate action. Traditional payment rails make micro-transactions impossible — Stripe charges $0.30+ for a $0.003 agent payment.
+AI agents excel at individual tasks but struggle with coordination—a critical infrastructure gap costing billions in supply chains, financial markets, and climate action. Current solutions require human intermediaries or centralized systems, creating bottlenecks and reliability issues.
 
 ## Features
 
-- **Instant Payments** - Direct agent-to-agent transfers
-- **Micro-transactions** - Viable payments as low as $0.003
-- **High Frequency** - 20+ TPS sustained throughput
-- **Autonomous Operation** - Zero human intervention required
-- **Cost Efficient** - 1000x+ cheaper than traditional processors
+- **Service Discovery** - Agents find and register services autonomously
+- **Real Compute Delivery** - GPU inference, data processing, IPFS storage
+- **Multi-Step Coordination** - Complex workflows across multiple agents
+- **Economic Coordination** - Payments for genuine service delivery
+- **Zero Human Intervention** - Fully autonomous operation
 
 ## Competitive Comparison
 
@@ -31,20 +31,25 @@ AI agents can optimize individual tasks, but they can't coordinate with each oth
 
 | Component | Purpose |
 |-----------|----------|
-| **AgentPayments.sol** | Simple payment contract (like Stripe API) |
-| **Base** | Low-cost, high-speed settlement |
+| **AgentMarketplace.sol** | Service registry and payment coordination |
+| **GPU Agents** | Real AI inference (text generation, image analysis) |
+| **Storage Agents** | IPFS storage and data backup services |
+| **Compute Agents** | Data processing and mathematical computation |
+| **Workflow Agents** | Multi-step service coordination |
+| **Base L2** | Low-cost, high-speed settlement |
 
 ## How It Works
 
-1. **Simple Payment**: `payAgent(to, service)` - one function call
-2. **Instant Settlement**: Direct transfer, no escrow needed
-3. **Autonomous Operation**: Agents continuously send micro-payments
-4. **Cost Efficient**: $0.0003 per transaction vs Stripe's $0.329
+1. **Service Registration**: Agents register capabilities on-chain
+2. **Service Discovery**: Consumer agents find required services
+3. **Real Service Delivery**: Providers execute actual compute tasks
+4. **Autonomous Payment**: Direct ETH transfers for completed work
 
 ```
-Agent A ──[payAgent()]──> AgentPayments ──[instant]──> Agent B
-         ↓ $0.0003 cost                    ↑ Immediate
-    "Stripe for AI"                   "1000x Cheaper"
+GPU Agent ──[registers AI service]──> Marketplace Contract
+Workflow Agent ──[discovers service]──> GPU Agent
+GPU Agent ──[delivers real AI inference]──> Workflow Agent
+Workflow Agent ──[pays for service]──> GPU Agent
 ```
 
 ## Quick Start
@@ -52,66 +57,76 @@ Agent A ──[payAgent()]──> AgentPayments ──[instant]──> Agent B
 ### 1. Installation
 ```bash
 git clone https://github.com/nikdmello/swift-protocol
-cd swift-protocol
-pnpm install
+cd swift-protocol/agents
+npm install
 ```
 
-### 2. Environment Setup
+### 2. Setup Agent Wallets
 ```bash
-# Copy and configure environment
-cp .env.example .env
-# Add your PRIVATE_KEY and RPC_URL
+# Add your funded agent wallets to funded-agents.json
+# Requires 10 agent wallets with Base ETH
 ```
 
-### 3. Deploy Contracts (Optional)
+### 3. Run Compute Network
 ```bash
-cd contracts
-# Deploy AgentPayments.sol using Hardhat
-```
-
-### 4. Usage
-```bash
-# Deploy and use AgentPayments contract
-# See contracts/contracts/AgentPayments.sol
+# Start autonomous agent coordination network
+node compute-network-demo.js
 ```
 
 ## Production Results
 
-**Production Infrastructure**: Ready for autonomous agent economies. Simple `payAgent()` function enables instant micro-payments.
+**Live Coordination Network**: Autonomous agents providing real compute services with genuine economic coordination. Demonstrated 100+ successful multi-agent workflows on Base mainnet.
 
 ## Use Cases
 
-- **Supply Chain Coordination** - Agents negotiate contracts and transfer payments across logistics networks
-- **Financial Market Arbitrage** - High-frequency coordination between trading agents
-- **Climate Action Networks** - Carbon credit trading and renewable energy coordination
-- **Autonomous Manufacturing** - Real-time coordination between production agents
-- **Smart City Infrastructure** - Traffic, energy, and resource optimization at scale
+- **Decentralized AI Inference** - GPU agents provide AI services to consumer agents
+- **Distributed Data Processing** - Compute agents handle statistical analysis and calculations
+- **Autonomous Content Creation** - Workflow agents coordinate text generation and storage
+- **Multi-Agent Analytics** - Complex data pipelines across specialized agents
+- **Decentralized Storage Networks** - IPFS storage with redundancy and backup services
 
 ## Live Deployment (Base Mainnet)
 
-- **AgentPayments**: [`0x88c67735417a4596cB02f88f79eF9eEf33f60e6e`](https://basescan.org/address/0x88c67735417a4596cB02f88f79eF9eEf33f60e6e)
+- **AgentMarketplace**: [`0x69Fc6F398670EA5b3248820a3b665db2f2502c83`](https://basescan.org/address/0x69Fc6F398670EA5b3248820a3b665db2f2502c83)
 - **Network**: Base L2 (Ethereum security, low cost)
-- **Status**: Production ready
+- **Status**: Production ready with real service delivery
 
 ## Tech Stack
 
 - **Smart Contracts**: Solidity ^0.8.20
-- **Network**: Base
+- **Agent Runtime**: Node.js with ethers.js
+- **AI Integration**: Hugging Face API, OpenAI
+- **Storage**: IPFS integration
+- **Network**: Base L2
 
 ## Project Structure
 
 ```
 swift/
 ├── contracts/
-│   └── AgentPayments.sol    # Core payment contract
-└── README.md                # Documentation
+│   ├── AgentMarketplace.sol         # Service registry and payments
+│   └── marketplace-deployment.json  # Contract deployment info
+├── agents/
+│   ├── compute-network-demo.js      # Main coordination demo
+│   ├── gpu-agent.js                 # AI inference services
+│   ├── storage-agent.js             # IPFS storage services
+│   ├── compute-agent.js             # Data processing services
+│   ├── workflow-agent.js            # Multi-step coordination
+│   └── funded-agents.json           # Agent wallet configuration
+└── README.md
 ```
 
-## Core Contract
+## Core Functions
 
 ```solidity
-// Simple payment function - like Stripe for AI agents
-function payAgent(address to, string memory service) external payable
+// Register a service with pricing
+function registerService(string memory serviceType, uint256 price) external
+
+// Purchase a service from a provider
+function purchaseService(address provider, string memory serviceType) external payable
+
+// Get service information
+function getService(address provider, string memory serviceType) external view returns (Service memory)
 ```
 
 ## License
