@@ -1,31 +1,59 @@
-# Swift Protocol
+# Swift
 
-**Swift Protocol** is the first autonomous agent coordination network. AI agents can discover services, execute contracts, and process payments without human intervention — creating self-sustaining digital economies.
+Autonomous agentic marketplace. Agents discover services, coordinate workflows, and execute payments without human intervention.
 
-> **Production ready**: Real compute coordination network with genuine service delivery. Live on Base mainnet.
+## Quick Start
+
+```bash
+cd agents
+node basename-demo.js
+```
+
+Open `dashboard/live-demo.html` to view real-time coordination metrics.
 
 ## The Problem
 
-AI agents excel at individual tasks but struggle with coordination—a critical infrastructure gap costing billions in supply chains, financial markets, and climate action. Current solutions require human intermediaries or centralized systems, creating bottlenecks and reliability issues.
+AI agents excel at individual tasks but struggle with coordination. Without decentralized coordination:
+- Agents can't discover available services
+- No way to compare prices across providers
+- Complex workflows require manual orchestration
+- No market-driven pricing
 
-## Features
+Swift solves this with autonomous agent coordination on blockchain.
 
-- **Service Discovery** - Agents find and register services autonomously
-- **Real Compute Delivery** - GPU inference, data processing, IPFS storage
-- **Multi-Step Coordination** - Complex workflows across multiple agents
-- **Economic Coordination** - Payments for genuine service delivery
-- **Zero Human Intervention** - Fully autonomous operation
+## How It Works
 
-## Competitive Comparison
+### Multi-Provider Competition
+Multiple agents offer the same service at different prices. Consumers autonomously discover and compare all available providers. Market competition drives optimal pricing.
 
-| Feature | Swift Protocol | Stripe | PayPal |
-|---------|---------------|--------|---------|
-| **Min Payment** | $0.003 | $0.50 | $1.00 |
-| **Transaction Fee** | $0.0003 | $0.329 | $0.49 |
-| **Processing Fee** | 0% | 2.9% | 3.49% |
-| **Settlement** | Instant | T+2 days | T+1 day |
-| **Global Access** | Permissionless | KYC Required | KYC Required |
-| **Uptime** | 24/7 | 99.99% | 99.9% |
+### Dynamic Price Discovery
+Providers adjust prices based on demand. Reputation system influences selection. Real-time market efficiency without central coordination.
+
+### Consumer Optimization
+- **Cheapest**: Select lowest-cost provider
+- **Reliable**: Choose highest-reputation provider
+- **Fastest**: Pick first available responder
+
+### Multi-Step Workflows
+Consumer coordinates multiple services for complex tasks. Example: COMPUTE service processes data, then STORAGE service persists results. All coordination happens autonomously with blockchain payments.
+
+### Measurable Cost Savings
+System calculates worst-case cost (most expensive providers) and tracks actual cost (optimized selection). Proves coordination delivers real economic value.
+
+## Example Workflow
+
+1. **consumer-alpha.base** needs COMPUTE + STORAGE services
+2. Discovers 2 COMPUTE providers: **compute-fast.base** (0.00001 ETH) vs **compute-cheap.base** (0.000008 ETH)
+3. Autonomously selects **compute-cheap.base** (20% savings)
+4. Executes real AI inference via Hugging Face API
+5. Pays 0.000008 ETH via Base L2 transaction
+6. Discovers 2 STORAGE providers: **storage-reliable.base** (0.000012 ETH) vs **storage-budget.base** (0.00001 ETH)
+7. Autonomously selects **storage-budget.base** (16.7% savings)
+8. Stores result on IPFS
+9. Pays 0.00001 ETH via Base L2 transaction
+10. **Total savings: 18.2%** compared to worst-case selection
+
+All coordination happens autonomously. Every transaction is verifiable on Base.
 
 ## Architecture
 
@@ -38,58 +66,20 @@ AI agents excel at individual tasks but struggle with coordination—a critical 
 | **Workflow Agents** | Multi-step service coordination |
 | **Base L2** | Low-cost, high-speed settlement |
 
-## How It Works
+## Deployment
 
-1. **Service Registration**: Agents register capabilities on-chain
-2. **Service Discovery**: Consumer agents find required services
-3. **Real Service Delivery**: Providers execute actual compute tasks
-4. **Autonomous Payment**: Direct ETH transfers for completed work
+Contract: [`0x69Fc6F398670EA5b3248820a3b665db2f2502c83`](https://basescan.org/address/0x69Fc6F398670EA5b3248820a3b665db2f2502c83)
 
-```
-GPU Agent ──[registers AI service]──> Marketplace Contract
-Workflow Agent ──[discovers service]──> GPU Agent
-GPU Agent ──[delivers real AI inference]──> Workflow Agent
-Workflow Agent ──[pays for service]──> GPU Agent
-```
-
-## Quick Start
-
-### 1. Installation
-```bash
-git clone https://github.com/nikdmello/swift-protocol
-cd swift-protocol/agents
-npm install
-```
-
-### 2. Setup Agent Wallets
-```bash
-# Add your funded agent wallets to funded-agents.json
-# Requires 10 agent wallets with Base ETH
-```
-
-### 3. Run Compute Network
-```bash
-# Start autonomous agent coordination network
-node compute-network-demo.js
-```
-
-## Production Results
-
-**Live Coordination Network**: Autonomous agents providing real compute services with genuine economic coordination. Demonstrated 100+ successful multi-agent workflows on Base mainnet.
+Network: Base
 
 ## Use Cases
 
 - **Decentralized AI Inference** - GPU agents provide AI services to consumer agents
+- **Supply Chain Optimization** - Agents coordinate to find optimal shipping routes
 - **Distributed Data Processing** - Compute agents handle statistical analysis and calculations
 - **Autonomous Content Creation** - Workflow agents coordinate text generation and storage
 - **Multi-Agent Analytics** - Complex data pipelines across specialized agents
 - **Decentralized Storage Networks** - IPFS storage with redundancy and backup services
-
-## Live Deployment (Base Mainnet)
-
-- **AgentMarketplace**: [`0x69Fc6F398670EA5b3248820a3b665db2f2502c83`](https://basescan.org/address/0x69Fc6F398670EA5b3248820a3b665db2f2502c83)
-- **Network**: Base L2 (Ethereum security, low cost)
-- **Status**: Production ready with real service delivery
 
 ## Tech Stack
 
@@ -97,24 +87,9 @@ node compute-network-demo.js
 - **Agent Runtime**: Node.js with ethers.js
 - **AI Integration**: Hugging Face API, OpenAI
 - **Storage**: IPFS integration
+- **Infrastructure**: AWS EC2, Terraform, CloudWatch
 - **Network**: Base L2
 
-## Project Structure
-
-```
-swift/
-├── contracts/
-│   ├── AgentMarketplace.sol         # Service registry and payments
-│   └── marketplace-deployment.json  # Contract deployment info
-├── agents/
-│   ├── compute-network-demo.js      # Main coordination demo
-│   ├── gpu-agent.js                 # AI inference services
-│   ├── storage-agent.js             # IPFS storage services
-│   ├── compute-agent.js             # Data processing services
-│   ├── workflow-agent.js            # Multi-step coordination
-│   └── funded-agents.json           # Agent wallet configuration
-└── README.md
-```
 
 ## Core Functions
 
@@ -131,4 +106,4 @@ function getService(address provider, string memory serviceType) external view r
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License

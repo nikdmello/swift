@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  gpu-agent:
+    build: .
+    environment:
+      - AGENT_TYPE=gpu
+      - PORT=3001
+      - NODE_ENV=production
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  storage-agent:
+    build: .
+    environment:
+      - AGENT_TYPE=storage
+      - PORT=3002
+      - NODE_ENV=production
+    ports:
+      - "3002:3002"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  compute-agent:
+    build: .
+    environment:
+      - AGENT_TYPE=compute
+      - PORT=3003
+      - NODE_ENV=production
+    ports:
+      - "3003:3003"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - gpu-agent
+      - storage-agent
+      - compute-agent
+    restart: unless-stopped
