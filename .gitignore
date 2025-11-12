@@ -6,8 +6,13 @@ node_modules/
 .env
 .env.local
 .env.*.local
-.env.agent1
-.env.agent2
+.env.production
+.env.production.local
+
+# Private keys and wallets
+funded-agents.json
+*.key
+*.pem
 
 # Build outputs
 dist/
@@ -29,7 +34,7 @@ out/
 .DS_Store
 Thumbs.db
 
-# Hardhat
+# Blockchain
 cache/
 artifacts/
 typechain-types/
@@ -47,13 +52,16 @@ pids
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
+# Coverage
 coverage/
 
-# Temporary folders
+# Temporary
 tmp/
 temp/
 
 # Test files
 test-*.sh
 get-*.js
+
+# Cleanup files
+coordination-clean.js

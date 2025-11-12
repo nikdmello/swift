@@ -1,0 +1,35 @@
+{
+  "name": "@swift/core",
+  "version": "0.1.0",
+  "description": "Atomic coordination infrastructure for autonomous AI agents",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "demo": "node examples/demo.js",
+    "test": "node examples/test.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [
+    "ai-agents",
+    "blockchain",
+    "coordination",
+    "atomic-workflows",
+    "web3",
+    "defi"
+  ],
+  "author": "Swift",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.13.7",
+    "express": "^5.1.0",
+    "cors": "^2.8.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/swift/core"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

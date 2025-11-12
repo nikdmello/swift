@@ -1,109 +1,119 @@
 # Swift
 
-Autonomous agentic marketplace. Agents discover services, coordinate workflows, and execute payments without human intervention.
+**Atomic coordination infrastructure for autonomous AI agents**
+
+Swift enables AI agents to coordinate complex multi-step workflows with guaranteed atomic execution. Either all agents in a workflow succeed and get paid, or the entire workflow reverts with full refunds.
+
+## Problem
+
+Current AI agent coordination is fragile:
+- **Partial failures** leave workflows in broken states
+- **Manual payment coordination** doesn't scale
+- **No trust layer** between agents from different organizations
+- **Coordination overhead** kills productivity
+
+## Solution
+
+Swift provides atomic workflow execution with blockchain settlement:
+
+```javascript
+// All agents succeed together, or all fail together
+const result = await swift.executeWorkflow({
+  agents: [
+    { service: 'MARKET_DATA', provider: 'agent-a' },
+    { service: 'ML_ANALYSIS', provider: 'agent-b' },
+    { service: 'EXECUTION', provider: 'agent-c' }
+  ]
+});
+// All paid atomically, or full refund
+```
+
+## Key Benefits
+
+- **Atomic Guarantee** - All-or-nothing execution prevents partial failures
+- **Instant Settlement** - Sub-second blockchain payments vs traditional banking days  
+- **Cross-Org Trust** - Agents from different companies can coordinate safely
+- **Cost Optimization** - Competitive provider selection reduces costs
+- **Auto Recovery** - Failed workflows automatically refund all participants
 
 ## Quick Start
 
 ```bash
-cd agents
-node basename-demo.js
+npm install @swift/client
 ```
 
-Open `dashboard/live-demo.html` to view real-time coordination metrics.
+```javascript
+import { SwiftClient } from '@swift/client';
 
-## The Problem
+const swift = new SwiftClient();
 
-AI agents excel at individual tasks but struggle with coordination. Without decentralized coordination:
-- Agents can't discover available services
-- No way to compare prices across providers
-- Complex workflows require manual orchestration
-- No market-driven pricing
+// Execute atomic trading workflow
+const result = await swift.executeWorkflow({
+  description: 'Complete BTC trading analysis',
+  agents: [
+    { service: 'MARKET_DATA' },
+    { service: 'ML_ANALYSIS' }, 
+    { service: 'RISK_ASSESSMENT' },
+    { service: 'EXECUTION' }
+  ]
+});
 
-Swift solves this with autonomous agent coordination on blockchain.
-
-## How It Works
-
-### Multi-Provider Competition
-Multiple agents offer the same service at different prices. Consumers autonomously discover and compare all available providers. Market competition drives optimal pricing.
-
-### Dynamic Price Discovery
-Providers adjust prices based on demand. Reputation system influences selection. Real-time market efficiency without central coordination.
-
-### Consumer Optimization
-- **Cheapest**: Select lowest-cost provider
-- **Reliable**: Choose highest-reputation provider
-- **Fastest**: Pick first available responder
-
-### Multi-Step Workflows
-Consumer coordinates multiple services for complex tasks. Example: COMPUTE service processes data, then STORAGE service persists results. All coordination happens autonomously with blockchain payments.
-
-### Measurable Cost Savings
-System calculates worst-case cost (most expensive providers) and tracks actual cost (optimized selection). Proves coordination delivers real economic value.
-
-## Example Workflow
-
-1. **consumer-alpha.base** needs COMPUTE + STORAGE services
-2. Discovers 2 COMPUTE providers: **compute-fast.base** (0.00001 ETH) vs **compute-cheap.base** (0.000008 ETH)
-3. Autonomously selects **compute-cheap.base** (20% savings)
-4. Executes real AI inference via Hugging Face API
-5. Pays 0.000008 ETH via Base L2 transaction
-6. Discovers 2 STORAGE providers: **storage-reliable.base** (0.000012 ETH) vs **storage-budget.base** (0.00001 ETH)
-7. Autonomously selects **storage-budget.base** (16.7% savings)
-8. Stores result on IPFS
-9. Pays 0.00001 ETH via Base L2 transaction
-10. **Total savings: 18.2%** compared to worst-case selection
-
-All coordination happens autonomously. Every transaction is verifiable on Base.
+console.log(`Success: ${result.success}`);
+console.log(`Total cost: ${result.totalCost} ETH`);
+```
 
 ## Architecture
 
-| Component | Purpose |
-|-----------|----------|
-| **AgentMarketplace.sol** | Service registry and payment coordination |
-| **GPU Agents** | Real AI inference (text generation, image analysis) |
-| **Storage Agents** | IPFS storage and data backup services |
-| **Compute Agents** | Data processing and mathematical computation |
-| **Workflow Agents** | Multi-step service coordination |
-| **Base L2** | Low-cost, high-speed settlement |
-
-## Deployment
-
-Contract: [`0x69Fc6F398670EA5b3248820a3b665db2f2502c83`](https://basescan.org/address/0x69Fc6F398670EA5b3248820a3b665db2f2502c83)
-
-Network: Base
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Swift Client  │───▶│  Orchestrator    │───▶│ Blockchain      │
+│   (Your App)    │    │  (Coordination)  │    │ (Settlement)    │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                                │
+                                ▼
+                       ┌──────────────────┐
+                       │   Agent Network  │
+                       │ (Service Providers)│
+                       └──────────────────┘
+```
 
 ## Use Cases
 
-- **Decentralized AI Inference** - GPU agents provide AI services to consumer agents
-- **Supply Chain Optimization** - Agents coordinate to find optimal shipping routes
-- **Distributed Data Processing** - Compute agents handle statistical analysis and calculations
-- **Autonomous Content Creation** - Workflow agents coordinate text generation and storage
-- **Multi-Agent Analytics** - Complex data pipelines across specialized agents
-- **Decentralized Storage Networks** - IPFS storage with redundancy and backup services
+**Financial Services**
+- Algorithmic trading with multi-step analysis
+- Cross-exchange arbitrage coordination
+- Risk assessment workflows
 
-## Tech Stack
+**Enterprise AI**
+- Multi-model inference pipelines
+- Data processing workflows
+- Automated decision systems
 
-- **Smart Contracts**: Solidity ^0.8.20
-- **Agent Runtime**: Node.js with ethers.js
-- **AI Integration**: Hugging Face API, OpenAI
-- **Storage**: IPFS integration
-- **Infrastructure**: AWS EC2, Terraform, CloudWatch
-- **Network**: Base L2
+**Research & Development**
+- Distributed compute coordination
+- Multi-agent simulations
+- Collaborative analysis
 
+## Market Opportunity
 
-## Core Functions
+- **$50B+ AI services market** growing 25% annually
+- **Enterprise coordination pain** costs billions in failed workflows
+- **Blockchain payments** enable new business models for AI agents
+- **First-mover advantage** in agent coordination infrastructure
 
-```solidity
-// Register a service with pricing
-function registerService(string memory serviceType, uint256 price) external
+## Demo
 
-// Purchase a service from a provider
-function purchaseService(address provider, string memory serviceType) external payable
-
-// Get service information
-function getService(address provider, string memory serviceType) external view returns (Service memory)
+```bash
+git clone https://github.com/your-org/swift
+cd swift
+npm install
+npm run demo
 ```
 
 ## License
 
-MIT License
+MIT License - Build the future of AI coordination
+
+---
+
+**Swift** - Making AI agent coordination as reliable as traditional finance
