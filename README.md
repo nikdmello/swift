@@ -113,7 +113,3 @@ npm run demo
 ## License
 
 MIT License - Build the future of AI coordination
-
----
-
-**Swift** - Making AI agent coordination as reliable as traditional finance
